@@ -1,0 +1,62 @@
+<html>
+  <head>
+    <title>Ice Cream Picker</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    
+   
+  </head>
+  <body>
+
+    <py-config>
+      packages = ["matplotlib", "pandas", "seaborn", "numpy"]
+      [[fetch]]
+      files = ['bitstampUSD.csv']
+    </py-config>
+    
+   
+
+    <py-script>
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pyodide.http import open_url
+import numpy as np
+
+      
+
+df  = pd.read_csv('bitstampUSD.csv')
+df1= df.dropna()
+df1.reset_index(inplace =True, drop=True)
+
+
+def graph_1(data) :
+    plt.rcParams["figure.figsize"] = (22,20)
+    fig, ax = plt.subplots()
+    ax.plot(data["Timestamp"], data["Weighted_Price"])
+    ax.set(xlabel='Timestamp', ylabel='Weighted_Price')
+    display(fig, target="graph-area_1", append=False)
+
+
+
+def graph_2(data):  
+    plt.rcParams["figure.figsize"] = (22,20)
+    fig, ax = plt.subplots()
+    ax.scatter(data["Volume_(BTC)"], data["Volume_(Currency)"], alpha=0.5)
+    display(fig, target="graph-area", append=False)
+
+
+
+graph_1(df1)
+graph_2(df1)
+
+      
+    </py-script>
+
+    
+
+    <div id="graph-area"></div>
+    <div id="graph-area_1"></div>
+  </body>
+</html>
