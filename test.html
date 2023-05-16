@@ -8,14 +8,14 @@
   <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
   <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.stock.min.js"></script>
 
-  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
-  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+  <!-- <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script> -->
 </head>
 
 </head>
 
 <body>
-  <py-config>
+  <!-- <py-config>
     packages = ["matplotlib", "pandas", "seaborn", "numpy"]
     [[fetch]]
     files = ['bitstampUSD.csv']
@@ -58,16 +58,39 @@
     graph_2(df1)
 
 
-  </py-script>
+  </py-script> -->
 
 
 
   <div id="graph-area"></div>
   <div id="graph-area_1"></div>
-  <div id="simpleCandleChart"></div>
-  <div id="animationCandleChart"></div>
+  <div id="candleChar">
+    <div>
+      candle chart
+    </div>
+    <div id="simpleCandleChart1"></div>
+  </div>
+  <div>
+    <div>
+      bar chart
+    </div>
+    simple BarChar Open Close
+    <div id="simple_BarChar_Open_Close">
+
+    </div>
+    simple Bar Char High Low
+    <div id="simple_Bar_Char_High_Low">
+
+    </div>
+  </div>
+  <div>
+    simple line volume
+    <div id="simple_line_Volume">
+
+    </div>
+  </div>
   <script>
-    var rowConverter = function (d) {
+    let rowConverter = function (d) {
       let date = []
       let open = []
       let high = []
@@ -96,11 +119,8 @@
         close
       }
     }
-  </script>
-  <script>
-    d3.csv("EW-MAX.csv", function (raw_data) {
-      let data = rowConverter(raw_data)
-      var trace = {
+    let drawCandleSimple = (idDiv, data, startDate, endDate, typeChart, title) => {
+      let trace = {
         x: data.date,
         close: data.close,
         high: data.high,
@@ -117,98 +137,19 @@
           }
         },
 
-        type: 'candlestick',
+        //type: 'candlestick',
+        type: typeChart,
         xaxis: 'x',
         yaxis: 'y'
       };
 
       let input = [trace];
-      var layout = {
-        dragmode: 'zoom',
-        margin: {
-          r: 10,
-          t: 25,
-          b: 40,
-          l: 60
-        },
-        showlegend: false,
-        xaxis: {
-          autorange: true,
-          rangeslider: {
-            range: ['2000/3/27', '2017/9/8']
-          },
-          title: 'Date',
-          type: 'date'
-        },
-        yaxis: {
-          autorange: true,
-          type: 'linear'
-        },
-
-        annotations: [{
-          x: '2000/3/27',
-          y: 0.9,
-          xref: 'x',
-          yref: 'paper',
-          text: 'largest movement',
-          font: {
-            color: 'magenta'
-          },
-          showarrow: true,
-          xanchor: 'right',
-          ax: -20,
-          ay: 0
-        }],
-
-        shapes: [{
-          type: 'rect',
-          xref: 'x',
-          yref: 'paper',
-
-          fillcolor: '#d3d3d3',
-          opacity: 0.2,
-          line: {
-            width: 0
-          }
-        }]
-      };
-      Plotly.newPlot('animationCandleChart', input, layout);
-    })
-  </script>
-  <script>
-    d3.csv("EW-MAX.csv", function (raw_data) {
-      let data = rowConverter(raw_data)
-      var trace = {
-        x: data.date,
-        decreasing: {
-          line: {
-            color: '#7F7F7F'
-          }
-        },
-        close: data.close,
-        high: data.high,
-        low: data.low,
-        open: data.open,
-        increasing: {
-          line: {
-            color: '#17BECF'
-          }
-        },
-        line: {
-          color: 'rgba(31,119,180,1)'
-        },
-        type: 'candlestick',
-        xaxis: 'x',
-        yaxis: 'y'
-      };
-
-      let input = [trace];
-      var layout = {
+      let layout = {
         dragmode: 'zoom',
         showlegend: true,
         xaxis: {
           autorange: true,
-          title: 'Date',
+          title: title,
           rangeselector: {
             x: 0,
             y: 1.2,
@@ -236,11 +177,179 @@
           autorange: true,
         }
       };
+      Plotly.newPlot(idDiv, input, layout);
+    }
+    let drawCandleStick = (idDiv, data, startDate, endDate, typeChart, title) => {
+      let trace = {
+        x: data.date,
+        close: data.close,
+        high: data.high,
+        low: data.low,
+        open: data.open,
+        increasing: {
+          line: {
+            color: '#17BECF'
+          }
+        },
+        decreasing: {
+          line: {
+            color: '#7F7F7F'
+          }
+        },
 
+        line: {
+          color: 'rgba(31,119,180,1)'
+        },
+        //type: 'candlestick',
+        type: typeChart,
+        xaxis: 'x',
+        yaxis: 'y'
+      };
 
-      Plotly.newPlot('simpleCandleChart', input, layout);
+      let input = [trace];
+
+      var layout = {
+        dragmode: 'zoom',
+        margin: {
+          r: 10,
+          t: 25,
+          b: 40,
+          l: 60
+        },
+        showlegend: false,
+        xaxis: {
+          autorange: true,
+          rangeslider: {
+            range: [startDate, endDate]
+          },
+          title: title,
+          type: 'date'
+        },
+        yaxis: {
+          autorange: true,
+          type: 'linear'
+        },
+
+        annotations: [{
+          x: startDate,
+          y: 0.9,
+          xref: 'x',
+          yref: 'paper',
+          text: 'largest movement',
+          font: {
+            color: 'magenta'
+          },
+          showarrow: true,
+          xanchor: 'right',
+          ax: -20,
+          ay: 0
+        }],
+
+        shapes: [{
+          type: 'rect',
+          xref: 'x',
+          yref: 'paper',
+          x0: startDate,
+          y0: 0,
+          x1: endDate,
+          y1: 1,
+          fillcolor: '#d3d3d3',
+          opacity: 0.2,
+          line: {
+            width: 0
+          }
+        }]
+      };
+      Plotly.newPlot(idDiv, input, layout);
+    }
+    let drawBarChart = (row, column1, column2, name1, name2, idDiv) => {
+      let trace1 = {
+        x: row,
+        y: column1,
+        name: name1,
+        type: "histogram",
+
+      }
+      let trace2 = {
+        x: row,
+        y: column2,
+        name: name2,
+        type: "histogram",
+      }
+      var data = [trace1, trace2];
+      var layout = {
+        barmode: "stack"
+      };
+      Plotly.newPlot(idDiv, data, layout);
+
+    }
+    let drawLine = (x, y, idDiv, title) => {
+      let data = {
+        type: "scatter",
+        mode: "lines",
+        name: 'AAPL Low',
+        x,
+        y
+      }
+      input = [data]
+      var layout = {
+        title: 'Time Series with Rangeslider',
+        xaxis: {
+          autorange: true,
+          range: ['2015-02-17', '2017-02-16'],
+          rangeselector: {
+            buttons: [{
+                count: 1,
+                label: '1m',
+                step: 'month',
+                stepmode: 'backward'
+              },
+              {
+                count: 6,
+                label: '6m',
+                step: 'month',
+                stepmode: 'backward'
+              },
+              {
+                step: 'all'
+              }
+            ]
+          },
+          rangeslider: {
+            range: ['2015-02-17', '2017-02-16']
+          },
+          type: 'date'
+        },
+        yaxis: {
+          autorange: true,
+          range: [86.8700008333, 138.870004167],
+          type: 'linear'
+        }
+      };
+
+      Plotly.newPlot(idDiv, input,layout);
+
+    }
+  </script>
+  <script>
+    d3.csv("BTC-USD.csv", function (raw_data) {
+      let data = rowConverter(raw_data)
+      drawCandleSimple("simpleCandleChart1", data, "2008-08-08", "2016-07-01", 'candlestick', 'BTC-USD')
+    })
+    d3.csv("BTC-USD.csv", function (raw_data) {
+      let data = rowConverter(raw_data)
+      drawBarChart(data.date, data.close, data.open, 'close', 'open', 'simple_BarChar_Open_Close')
+    })
+    d3.csv("BTC-USD.csv", function (raw_data) {
+      let data = rowConverter(raw_data)
+      drawBarChart(data.date, data.high, data.low, 'high', 'close', 'simple_Bar_Char_High_Low')
+    })
+    d3.csv("BTC-USD.csv", function (raw_data) {
+      let data = rowConverter(raw_data)
+      drawLine(data.date, data.volume, 'simple_line_Volume', 'Volume')
     })
   </script>
+
 
 </body>
 
