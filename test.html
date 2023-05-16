@@ -4,11 +4,11 @@
   <title>Ice Cream Picker</title>
   <meta charset="utf-8">
   <link rel="stylesheet" href="style.css" />
-  <script src='https://cdn.plot.ly/plotly-2.20.0.min.js'></script>
+  <!-- <script src='https://cdn.plot.ly/plotly-2.20.0.min.js'></script> -->
   <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
   <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
   <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.stock.min.js"></script>
-
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <!-- <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
   <script defer src="https://pyscript.net/latest/pyscript.js"></script> -->
 </head>
@@ -90,6 +90,11 @@
 
     </div>
   </div>
+  <div id="linetwocolumn1">
+
+  </div>
+  <div id="linetwocolumn2">
+</div>
   <script>
     let rowConverter = function (d) {
       let date = []
@@ -268,7 +273,7 @@
         x: row,
         y: column1,
         name: name1,
-        type: "histogram" 
+        type: "histogram"
       }
       let trace2 = {
         x: row,
@@ -359,25 +364,185 @@
         }
       })
     }
+    let drawtwoline = (idDiv, x, column1, column2, name1, name2, title) => {
+      let max1 = column1.reduce(function (accumulator, element) {
+        return (accumulator > element) ? accumulator : element
+      });
+      let min1 = column1.reduce(function (accumulator, element) {
+        return (accumulator < element) ? accumulator : element
+      });
+
+      let max2 = column2.reduce(function (accumulator, element) {
+        return (accumulator > element) ? accumulator : element
+      });
+      let min2 = column2.reduce(function (accumulator, element) {
+        return (accumulator < element) ? accumulator : element
+      });
+      let button_layer_2_height = 1
+      let trace1 = {
+        x,
+        y: column1,
+        mode: 'lines',
+        type: 'scatter',
+        name: name1,
+        line: {
+          color: 'red'
+        }
+      }
+      let trace2 = {
+        x,
+        y: column2,
+        mode: 'lines',
+        type: 'scatter',
+        name: name1,
+        line: {
+          color: '#7F7F7F'
+        }
+      }
+      let column1_annotations = [{
+          text: 'high ' + max1,
+          x: x[column1.indexOf(max1)],
+          y: max1,
+          yref: 'y',
+          xref: 'x',
+          ay: 90,
+          ax: 0
+        },
+        {
+          text: 'low ' + min1,
+          x: x[column1.indexOf(min1)],
+          y: min1,
+          yref: 'y',
+          xref: 'x',
+          ay: 50,
+          ax: 0
+        }
+      ]
+      let column2_annotations = [{
+          text: 'High' + max2,
+          x: x[column2.indexOf(max2)],
+          y: max2,
+          yref: 'y',
+          xref: 'x',
+          ay: -50,
+          ax: 0
+        },
+        {
+          text: 'Low ' + min2,
+          x: x[column2.indexOf(min2)],
+          y: min1,
+          yref: 'y',
+          xref: 'x',
+          ay: -50,
+          ax: 0
+        }
+      ]
+      var updatemenus = [{
+          buttons: [{
+              args: [{
+                  'visible': [true, false, false, false]
+                },
+                {
+                  'title': name1,
+                  'annotations': column1_annotations
+                }
+              ],
+              label: name1,
+              method: 'update'
+            },
+            {
+              args: [{
+                  'visible': [false, true, false, false, ]
+                },
+                {
+                  'title': name2,
+                  'annotations': column2_annotations
+                }
+              ],
+              label: name2,
+              method: 'update'
+            },
+            {
+              args: [{
+                  'visible': [true, true, false, false, ]
+                },
+                {
+                  'title': name1 + name2,
+                  'annotations': [...column1_annotations, ...column2_annotations]
+                }
+              ],
+              label: 'Both',
+              method: 'update'
+            }
+
+          ],
+          direction: 'left',
+          pad: {
+            'r': 10,
+            't': 10
+          },
+          showactive: true,
+          type: 'buttons',
+          x: 0.1,
+          xanchor: 'left',
+          y: button_layer_2_height,
+          yanchor: 'top'
+        },
+
+      ]
+      let data = [trace1, trace2]
+      let layout = {
+        title,
+        updatemenus: updatemenus,
+        showlegend: false,
+        xaxis: {
+          autorange: true,
+          range: ['2015-02-17', '2017-02-16'],
+          rangeselector: {
+            buttons: [{
+                count: 1,
+                label: '1m',
+                step: 'month',
+                stepmode: 'backward'
+              },
+              {
+                count: 6,
+                label: '6m',
+                step: 'month',
+                stepmode: 'backward'
+              },
+              {
+                step: 'all'
+              }
+            ]
+          },
+          rangeslider: {
+            range: ['2015-02-17', '2017-02-16']
+          },
+          type: 'date'
+        },
+        yaxis: {
+          autorange: true,
+          range: [86.8700008333, 138.870004167],
+          type: 'linear'
+        }
+      };
+      Plotly.newPlot(idDiv, data, layout);
+
+    }
   </script>
   <script>
     d3.csv("https://raw.githubusercontent.com/Chaudeptrai123456/DataViz/master/BTC-USD.csv", function (raw_data) {
       let data = rowConverter(raw_data)
       drawCandleSimple("simpleCandleChart1", data, "2008-08-08", "2016-07-01", 'candlestick', 'BTC-USD')
-    })
-    d3.csv("https://raw.githubusercontent.com/Chaudeptrai123456/DataViz/master/BTC-USD.csv", function (raw_data) {
-      let data = rowConverter(raw_data)
       drawBarChart(data.date, data.close, data.open, 'close', 'open', 'simple_BarChar_Open_Close')
-    })
-    d3.csv("https://raw.githubusercontent.com/Chaudeptrai123456/DataViz/master/BTC-USD.csv", function (raw_data) {
-      let data = rowConverter(raw_data)
       drawBarChart(data.date, data.high, data.low, 'high', 'close', 'simple_Bar_Char_High_Low')
-    })
-    d3.csv("https://raw.githubusercontent.com/Chaudeptrai123456/DataViz/master/BTC-USD.csv", function (raw_data) {
-      let data = rowConverter(raw_data)
       drawLine(data.date, data.volume, 'simple_line_Volume', 'Volume')
+      drawtwoline('linetwocolumn1', data.date, data.close, data.open, "Close", "Open", "CLose - Open")
+      drawtwoline('linetwocolumn2', data.date, data.high, data.low, "High", "Low", "High - Low")
+      
+      // addFeater("feater",data)
     })
-    addClickAnimation('simple_line_Volume')
   </script>
 
 
