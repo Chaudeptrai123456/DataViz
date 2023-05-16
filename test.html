@@ -3,6 +3,7 @@
 <head>
   <title>Ice Cream Picker</title>
   <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css" />
   <script src='https://cdn.plot.ly/plotly-2.20.0.min.js'></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
   <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
@@ -64,28 +65,28 @@
 
   <div id="graph-area"></div>
   <div id="graph-area_1"></div>
-  <div id="candleChar">
+  <div id="candleChar" class="chart">
     <div>
       candle chart
     </div>
-    <div id="simpleCandleChart1"></div>
+    <div id="simpleCandleChart1" class="chart"></div>
   </div>
   <div>
     <div>
       bar chart
     </div>
     simple BarChar Open Close
-    <div id="simple_BarChar_Open_Close">
+    <div id="simple_BarChar_Open_Close" class="chart">
 
     </div>
     simple Bar Char High Low
-    <div id="simple_Bar_Char_High_Low">
+    <div id="simple_Bar_Char_High_Low" class="chart">
 
     </div>
   </div>
   <div>
     simple line volume
-    <div id="simple_line_Volume">
+    <div id="simple_line_Volume" class="chart">
 
     </div>
   </div>
@@ -267,14 +268,20 @@
         x: row,
         y: column1,
         name: name1,
-        type: "histogram",
-
+        type: "histogram" 
       }
       let trace2 = {
         x: row,
         y: column2,
         name: name2,
         type: "histogram",
+        marker: {
+          color: "rgba(255, 100, 102, 0.7)",
+          line: {
+            color: "rgba(255, 100, 102, 1)",
+            width: 1
+          }
+        }
       }
       var data = [trace1, trace2];
       var layout = {
@@ -293,7 +300,7 @@
       }
       input = [data]
       var layout = {
-        title: 'Time Series with Rangeslider',
+        title: 'Volume',
         xaxis: {
           autorange: true,
           range: ['2015-02-17', '2017-02-16'],
@@ -322,32 +329,55 @@
         },
         yaxis: {
           autorange: true,
-          range: [86.8700008333, 138.870004167],
+          range: [0, 138.870004167],
           type: 'linear'
         }
       };
 
-      Plotly.newPlot(idDiv, input,layout);
+      Plotly.newPlot(idDiv, input, layout);
 
+    }
+    let addClickAnimation = (idDiv) => {
+      let plot = document.getElementById(idDiv)
+      plot.on('plotly_click', (data) => {
+        let pts = '';
+        for (let i = 0; i < data.points.length; i++) {
+          annotate_text = 'x = ' + data.points[i].x +
+            'y = ' + data.points[i].y.toPrecision(4);
+
+          annotation = {
+            text: annotate_text,
+            x: data.points[i].x,
+            y: parseFloat(data.points[i].y.toPrecision(4))
+          }
+
+          annotations = self.layout.annotations || [];
+          annotations.push(annotation);
+          Plotly.relayout('myDiv', {
+            annotations: annotations
+          })
+        }
+      })
     }
   </script>
   <script>
-    d3.csv("BTC-USD.csv", function (raw_data) {
+    d3.csv("https://raw.githubusercontent.com/Chaudeptrai123456/DataViz/master/BTC-USD.csv", function (raw_data) {
       let data = rowConverter(raw_data)
       drawCandleSimple("simpleCandleChart1", data, "2008-08-08", "2016-07-01", 'candlestick', 'BTC-USD')
     })
-    d3.csv("BTC-USD.csv", function (raw_data) {
+    d3.csv("https://raw.githubusercontent.com/Chaudeptrai123456/DataViz/master/BTC-USD.csv", function (raw_data) {
       let data = rowConverter(raw_data)
       drawBarChart(data.date, data.close, data.open, 'close', 'open', 'simple_BarChar_Open_Close')
     })
-    d3.csv("BTC-USD.csv", function (raw_data) {
+    d3.csv("https://raw.githubusercontent.com/Chaudeptrai123456/DataViz/master/BTC-USD.csv", function (raw_data) {
       let data = rowConverter(raw_data)
       drawBarChart(data.date, data.high, data.low, 'high', 'close', 'simple_Bar_Char_High_Low')
     })
-    d3.csv("BTC-USD.csv", function (raw_data) {
+    d3.csv("https://raw.githubusercontent.com/Chaudeptrai123456/DataViz/master/BTC-USD.csv", function (raw_data) {
       let data = rowConverter(raw_data)
       drawLine(data.date, data.volume, 'simple_line_Volume', 'Volume')
     })
+    addClickAnimation('simple_line_Volume')
   </script>
 
 
