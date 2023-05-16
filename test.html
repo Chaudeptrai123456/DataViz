@@ -1,37 +1,43 @@
 <html>
-  <head>
-    <title>Ice Cream Picker</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
-    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
-    
-   
-  </head>
-  <body>
 
-    <py-config>
-      packages = ["matplotlib", "pandas", "seaborn", "numpy"]
-      [[fetch]]
-      files = ['bitstampUSD.csv']
-    </py-config>
-    
-   
+<head>
+  <title>Ice Cream Picker</title>
+  <meta charset="utf-8">
+  <script src='https://cdn.plot.ly/plotly-2.20.0.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
+  <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.stock.min.js"></script>
 
-    <py-script>
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from pyodide.http import open_url
-import numpy as np
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
 
-      
+</head>
 
-df  = pd.read_csv('bitstampUSD.csv')
-df1= df.dropna()
-df1.reset_index(inplace =True, drop=True)
+<body>
+  <py-config>
+    packages = ["matplotlib", "pandas", "seaborn", "numpy"]
+    [[fetch]]
+    files = ['bitstampUSD.csv']
+  </py-config>
 
 
-def graph_1(data) :
+
+  <py-script>
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    from pyodide.http import open_url
+    import numpy as np
+
+
+
+    df = pd.read_csv('bitstampUSD.csv')
+    df1= df.dropna()
+    df1.reset_index(inplace =True, drop=True)
+
+
+    def graph_1(data) :
     plt.rcParams["figure.figsize"] = (22,20)
     fig, ax = plt.subplots()
     ax.plot(data["Timestamp"], data["Weighted_Price"])
@@ -40,7 +46,7 @@ def graph_1(data) :
 
 
 
-def graph_2(data):  
+    def graph_2(data):
     plt.rcParams["figure.figsize"] = (22,20)
     fig, ax = plt.subplots()
     ax.scatter(data["Volume_(BTC)"], data["Volume_(Currency)"], alpha=0.5)
@@ -48,15 +54,194 @@ def graph_2(data):
 
 
 
-graph_1(df1)
-graph_2(df1)
+    graph_1(df1)
+    graph_2(df1)
 
-      
-    </py-script>
 
-    
+  </py-script>
 
-    <div id="graph-area"></div>
-    <div id="graph-area_1"></div>
-  </body>
+
+
+  <div id="graph-area"></div>
+  <div id="graph-area_1"></div>
+  <div id="simpleCandleChart"></div>
+  <div id="animationCandleChart"></div>
+  <script>
+    var rowConverter = function (d) {
+      let date = []
+      let open = []
+      let high = []
+      let low = []
+      let adj_Close = []
+      let volume = []
+      let close = []
+
+      // Date,Open,High,Low,Close,Adj_Close,Volume  d.length
+      for (let i = 0; i < d.length; i++) {
+        open.push(Number.parseFloat(d[i].Open))
+        high.push(Number.parseFloat(d[i].High))
+        low.push(Number.parseFloat(d[i].Low))
+        adj_Close.push(Number.parseFloat(d[i].Adj_Close))
+        volume.push(Number.parseFloat(d[i].Volume))
+        date.push(d[i].Date)
+        close.push((Number.parseFloat(d[i].Close)))
+      }
+      return {
+        date,
+        open,
+        high,
+        low,
+        adj_Close,
+        volume,
+        close
+      }
+    }
+  </script>
+  <script>
+    d3.csv("EW-MAX.csv", function (raw_data) {
+      let data = rowConverter(raw_data)
+      var trace = {
+        x: data.date,
+        close: data.close,
+        high: data.high,
+        low: data.low,
+        open: data.open,
+        increasing: {
+          line: {
+            color: 'black'
+          }
+        },
+        decreasing: {
+          line: {
+            color: 'red'
+          }
+        },
+
+        type: 'candlestick',
+        xaxis: 'x',
+        yaxis: 'y'
+      };
+
+      let input = [trace];
+      var layout = {
+        dragmode: 'zoom',
+        margin: {
+          r: 10,
+          t: 25,
+          b: 40,
+          l: 60
+        },
+        showlegend: false,
+        xaxis: {
+          autorange: true,
+          rangeslider: {
+            range: ['2000/3/27', '2017/9/8']
+          },
+          title: 'Date',
+          type: 'date'
+        },
+        yaxis: {
+          autorange: true,
+          type: 'linear'
+        },
+
+        annotations: [{
+          x: '2000/3/27',
+          y: 0.9,
+          xref: 'x',
+          yref: 'paper',
+          text: 'largest movement',
+          font: {
+            color: 'magenta'
+          },
+          showarrow: true,
+          xanchor: 'right',
+          ax: -20,
+          ay: 0
+        }],
+
+        shapes: [{
+          type: 'rect',
+          xref: 'x',
+          yref: 'paper',
+
+          fillcolor: '#d3d3d3',
+          opacity: 0.2,
+          line: {
+            width: 0
+          }
+        }]
+      };
+      Plotly.newPlot('animationCandleChart', input, layout);
+    })
+  </script>
+  <script>
+    d3.csv("EW-MAX.csv", function (raw_data) {
+      let data = rowConverter(raw_data)
+      var trace = {
+        x: data.date,
+        decreasing: {
+          line: {
+            color: '#7F7F7F'
+          }
+        },
+        close: data.close,
+        high: data.high,
+        low: data.low,
+        open: data.open,
+        increasing: {
+          line: {
+            color: '#17BECF'
+          }
+        },
+        line: {
+          color: 'rgba(31,119,180,1)'
+        },
+        type: 'candlestick',
+        xaxis: 'x',
+        yaxis: 'y'
+      };
+
+      let input = [trace];
+      var layout = {
+        dragmode: 'zoom',
+        showlegend: true,
+        xaxis: {
+          autorange: true,
+          title: 'Date',
+          rangeselector: {
+            x: 0,
+            y: 1.2,
+            xanchor: 'left',
+            font: {
+              size: 8
+            },
+            buttons: [{
+              step: 'month',
+              stepmode: 'backward',
+              count: 1,
+              label: '1 month'
+            }, {
+              step: 'month',
+              stepmode: 'backward',
+              count: 6,
+              label: '6 months'
+            }, {
+              step: 'all',
+              label: 'All dates'
+            }]
+          }
+        },
+        yaxis: {
+          autorange: true,
+        }
+      };
+
+
+      Plotly.newPlot('simpleCandleChart', input, layout);
+    })
+  </script>
+
+</body>
+
 </html>
