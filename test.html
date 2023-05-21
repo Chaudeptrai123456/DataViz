@@ -13,88 +13,56 @@
   <script defer src="https://pyscript.net/latest/pyscript.js"></script> -->
 </head>
 
-</head>
-
 <body>
-  <!-- <py-config>
-    packages = ["matplotlib", "pandas", "seaborn", "numpy"]
-    [[fetch]]
-    files = ['bitstampUSD.csv']
-  </py-config>
-
-
-
-  <py-script>
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    from pyodide.http import open_url
-    import numpy as np
-
-
-
-    df = pd.read_csv('bitstampUSD.csv')
-    df1= df.dropna()
-    df1.reset_index(inplace =True, drop=True)
-
-
-    def graph_1(data) :
-    plt.rcParams["figure.figsize"] = (22,20)
-    fig, ax = plt.subplots()
-    ax.plot(data["Timestamp"], data["Weighted_Price"])
-    ax.set(xlabel='Timestamp', ylabel='Weighted_Price')
-    display(fig, target="graph-area_1", append=False)
-
-
-
-    def graph_2(data):
-    plt.rcParams["figure.figsize"] = (22,20)
-    fig, ax = plt.subplots()
-    ax.scatter(data["Volume_(BTC)"], data["Volume_(Currency)"], alpha=0.5)
-    display(fig, target="graph-area", append=False)
-
-
-
-    graph_1(df1)
-    graph_2(df1)
-
-
-  </py-script> -->
-
-
-
-  <div id="graph-area"></div>
-  <div id="graph-area_1"></div>
-  <div id="candleChar" class="chart">
-    <div>
-      candle chart
+  <div class="header">
+    <div class="title font" >
+        Mes que un club
     </div>
-    <div id="simpleCandleChart1" class="chart"></div>
-  </div>
-  <div>
-    <div>
-      bar chart
-    </div>
-    simple BarChar Open Close
-    <div id="simple_BarChar_Open_Close" class="chart">
-
-    </div>
-    simple Bar Char High Low
-    <div id="simple_Bar_Char_High_Low" class="chart">
-
+    <div class="lastest-update">
+        <div id="high" class="item font"></div>
+        <div id="close" class="item font"></div>
+        <div id="volume" class="item font"></div>
+        <div id="adj" class="item font"></div>
     </div>
   </div>
-  <div>
-    simple line volume
-    <div id="simple_line_Volume" class="chart">
+  <div class="container">
 
+    <div class="content">
+      <div class="page active simpleCandleChart chart" id="pagesimpleCandleChart">
+        <div></div>
+        <div id="simpleCandleChart1" class="chart"></div>
+        <div></div>
+      </div>
+      <div class="page simpleBarChart chart" id="pagesimpleBarChart">
+        <div id="simple_BarChar_Open_Close" class="chart"></div>
+        <div id="simple_Bar_Char_High_Low" class="chart"></div>
+      </div>
+      <div class="page simpleLineVolumn" id="pagesimpleLineVolumn">
+        <div id="simple_line_Volume" class="chart" style="width: 100vh;"></div>
+      </div>
+      <div class="page twoLine" id="pagetwoLine">
+        <div id="linetwocolumn1" class="chart"></div>
+        <div id="linetwocolumn2" class="chart"></div>
+      </div>
+    </div>
+    <div class="control-bar">
+      <div class="item">
+      </div>
+      <div class="item btn-candle">
+        <img src="https://res.cloudinary.com/tienanh/image/upload/v1684673562/unnamed_jgmyar.png" class="btn-candle control" id="simpleCandleChart" />
+      </div>
+      <div class="item btn-bar">
+        <img src="https://res.cloudinary.com/tienanh/image/upload/v1684673562/242957_wmjjp9.png" class="btn-bar control" id="simpleBarChart" />
+      </div>
+      <div class="item btn-line">
+        <img src="https://res.cloudinary.com/tienanh/image/upload/v1684673561/Capture_hchhzd.png" class="btn-candle control" id="simpleLineVolumn" />
+      </div>
+      <div class="item btn-twoline">
+        <img src="https://res.cloudinary.com/tienanh/image/upload/v1684673561/OIP_cctv4z.jpg" class="btn-candle control" id="twoLine" />
+      </div>
+      <div class="item"></div>
     </div>
   </div>
-  <div id="linetwocolumn1">
-
-  </div>
-  <div id="linetwocolumn2">
-</div>
   <script>
     let rowConverter = function (d) {
       let date = []
@@ -132,6 +100,7 @@
         high: data.high,
         low: data.low,
         open: data.open,
+        volume: data.volume,
         increasing: {
           line: {
             color: 'black'
@@ -153,6 +122,10 @@
       let layout = {
         dragmode: 'zoom',
         showlegend: true,
+        layout: {
+          paper_bgcolor : 'rgba(0,0,0,0)',
+          plot_bgcolor : 'rgba(0,0,0,0)'
+        },
         xaxis: {
           autorange: true,
           title: title,
@@ -273,39 +246,18 @@
         x: row,
         y: column1,
         name: name1,
-        type: "histogram"
+        type: "bar"
       }
       let trace2 = {
         x: row,
         y: column2,
         name: name2,
-        type: "histogram",
-        marker: {
-          color: "rgba(255, 100, 102, 0.7)",
-          line: {
-            color: "rgba(255, 100, 102, 1)",
-            width: 1
-          }
-        }
+        type: "bar",
+
       }
       var data = [trace1, trace2];
       var layout = {
-        barmode: "stack"
-      };
-      Plotly.newPlot(idDiv, data, layout);
-
-    }
-    let drawLine = (x, y, idDiv, title) => {
-      let data = {
-        type: "scatter",
-        mode: "lines",
-        name: 'AAPL Low',
-        x,
-        y
-      }
-      input = [data]
-      var layout = {
-        title: 'Volume',
+        barmode: "group",
         xaxis: {
           autorange: true,
           range: ['2015-02-17', '2017-02-16'],
@@ -336,6 +288,61 @@
           autorange: true,
           range: [0, 138.870004167],
           type: 'linear'
+        }
+      };
+      Plotly.newPlot(idDiv, data, layout);
+
+    }
+    let drawLine = (x, y, idDiv, title) => {
+      let data = {
+        type: "scatter",
+        mode: "lines",
+        name: title,
+        x,
+        increasing: {
+          line: {
+            color: 'black'
+          }
+        },
+        decreasing: {
+          line: {
+            color: 'red'
+          }
+        },
+        y
+      }
+      input = [data]
+      let layout = {
+        dragmode: 'zoom',
+        showlegend: true,
+        xaxis: {
+          autorange: true,
+          title: title,
+          rangeselector: {
+            x: 0,
+            y: 1.2,
+            xanchor: 'left',
+            font: {
+              size: 8
+            },
+            buttons: [{
+              step: 'month',
+              stepmode: 'backward',
+              count: 1,
+              label: '1 month'
+            }, {
+              step: 'month',
+              stepmode: 'backward',
+              count: 6,
+              label: '6 months'
+            }, {
+              step: 'all',
+              label: 'All dates'
+            }]
+          }
+        },
+        yaxis: {
+          autorange: true,
         }
       };
 
@@ -378,6 +385,8 @@
       let min2 = column2.reduce(function (accumulator, element) {
         return (accumulator < element) ? accumulator : element
       });
+
+
       let button_layer_2_height = 1
       let trace1 = {
         x,
@@ -389,12 +398,13 @@
           color: 'red'
         }
       }
+
       let trace2 = {
         x,
         y: column2,
         mode: 'lines',
         type: 'scatter',
-        name: name1,
+        name: name2,
         line: {
           color: '#7F7F7F'
         }
@@ -440,7 +450,7 @@
       var updatemenus = [{
           buttons: [{
               args: [{
-                  'visible': [true, false, false, false]
+                  'visible': [true, false, false]
                 },
                 {
                   'title': name1,
@@ -452,7 +462,7 @@
             },
             {
               args: [{
-                  'visible': [false, true, false, false, ]
+                  'visible': [false, true, false, ]
                 },
                 {
                   'title': name2,
@@ -464,7 +474,7 @@
             },
             {
               args: [{
-                  'visible': [true, true, false, false, ]
+                  'visible': [true, true, false, ]
                 },
                 {
                   'title': name1 + name2,
@@ -530,6 +540,16 @@
       Plotly.newPlot(idDiv, data, layout);
 
     }
+    let getAllData = (data) => {
+      let high = data.high[data.high.length-1]
+      let adj_Close = data.adj_Close[data.high.length-1]
+      let volume = data.volume[data.high.length-1]
+      let close = data.close[data.high.length-1]
+      document.getElementById('high').innerText='High: '+high
+      document.getElementById('adj').innerText='Adj_CLose: '+adj_Close
+      document.getElementById('volume').innerText='Volume: '+volume
+      document.getElementById('close').innerText='Close: '+close
+    }
   </script>
   <script>
     d3.csv("https://raw.githubusercontent.com/Chaudeptrai123456/DataViz/master/BTC-USD.csv", function (raw_data) {
@@ -540,12 +560,19 @@
       drawLine(data.date, data.volume, 'simple_line_Volume', 'Volume')
       drawtwoline('linetwocolumn1', data.date, data.close, data.open, "Close", "Open", "CLose - Open")
       drawtwoline('linetwocolumn2', data.date, data.high, data.low, "High", "Low", "High - Low")
-      
+      getAllData(data)
       // addFeater("feater",data)
     })
   </script>
-
-
+  <script>
+    let array = [...document.querySelectorAll(".control")]
+    array.forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelector(".active").classList.remove("active");
+        document.getElementById("page" + button.id).classList.add("active");
+      })
+    })
+  </script>
 </body>
 
 </html>
