@@ -556,7 +556,7 @@
       let data = rowConverter(raw_data)
       drawCandleSimple("simpleCandleChart1", data, "2008-08-08", "2016-07-01", 'candlestick', 'BTC-USD')
       drawBarChart(data.date, data.close, data.open, 'close', 'open', 'simple_BarChar_Open_Close')
-      drawBarChart(data.date, data.high, data.low, 'high', 'close', 'simple_Bar_Char_High_Low')
+      drawBarChart(data.date, data.high, data.low, 'high', 'low', 'simple_Bar_Char_High_Low')
       drawLine(data.date, data.volume, 'simple_line_Volume', 'Volume')
       drawtwoline('linetwocolumn1', data.date, data.close, data.open, "Close", "Open", "CLose - Open")
       drawtwoline('linetwocolumn2', data.date, data.high, data.low, "High", "Low", "High - Low")
